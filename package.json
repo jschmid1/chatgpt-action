@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/unsafecoerce/chatgpt-action.git"
+    "url": "git+https://github.com/jschmid1/chatgpt-action.git"
   },
   "keywords": [
     "actions",
@@ -30,7 +30,8 @@
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
     "@octokit/action": "^5.0.2",
-    "chatgpt": "file:./chatgpt-api",
+    "chatgpt": "^5.2.5",
+    "fetch-polyfill": "^0.8.2",
     "minimatch": "^7.4.2",
     "node-fetch": "^3.3.0"
   },
@@ -46,6 +47,6 @@
     "js-yaml": "^4.1.0",
     "prettier": "2.5.1",
     "ts-jest": "^27.1.2",
-    "typescript": "^4.4.4"
+    "typescript": "^4.9.5"
   }
 }

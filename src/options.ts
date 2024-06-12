@@ -4,19 +4,13 @@ import {minimatch} from 'minimatch'
 export class Prompts {
   public review_beginning: string
   public review_patch: string
-  public scoring_beginning: string
-  public scoring: string
 
   constructor(
     review_beginning: string = '',
     review_patch: string = '',
-    scoring_beginning: string = '',
-    scoring: string = ''
   ) {
     this.review_beginning = review_beginning
     this.review_patch = review_patch
-    this.scoring_beginning = scoring_beginning
-    this.scoring = scoring
   }
 
   public render_review_beginning(inputs: Inputs): string {
@@ -27,13 +21,6 @@ export class Prompts {
     return inputs.render(this.review_patch)
   }
 
-  public render_scoring_beginning(inputs: Inputs): string {
-    return inputs.render(this.scoring_beginning)
-  }
-
-  public render_scoring(inputs: Inputs): string {
-    return inputs.render(this.scoring)
-  }
 }
 
 export class Inputs {
@@ -82,18 +69,15 @@ export class Inputs {
 
 export class Options {
   public debug: boolean
-  public chatgpt_reverse_proxy: string
   public review_comment_lgtm: boolean
   public path_filters: PathFilter
 
   constructor(
     debug: boolean,
-    chatgpt_reverse_proxy: string,
     review_comment_lgtm: boolean = false,
     path_filters: Array<string> | null = null
   ) {
     this.debug = debug
-    this.chatgpt_reverse_proxy = chatgpt_reverse_proxy
     this.review_comment_lgtm = review_comment_lgtm
     this.path_filters = new PathFilter(path_filters)
   }

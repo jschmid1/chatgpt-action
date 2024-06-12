@@ -1,16 +1,15 @@
+// Werid dependendy for chatgpt library
 import './fetch-polyfill.js'
 import {Options} from './options.js'
 import * as core from '@actions/core'
 import {
   ChatGPTAPI,
-  ChatGPTUnofficialProxyAPI,
   ChatMessage,
   SendMessageOptions,
-  SendMessageBrowserOptions
 } from 'chatgpt'
 
+
 export class Bot {
-  private bot: ChatGPTUnofficialProxyAPI | null = null // free
   private turbo: ChatGPTAPI | null = null // not free
   private history: ChatMessage | null = null
   private MAX_PATCH_COUNT: number = 4000
@@ -19,23 +18,22 @@ export class Bot {
 
   constructor(options: Options) {
     this.options = options
-    if (process.env.CHATGPT_ACCESS_TOKEN) {
-      this.bot = new ChatGPTUnofficialProxyAPI({
-        accessToken: process.env.CHATGPT_ACCESS_TOKEN,
-        apiReverseProxyUrl: options.chatgpt_reverse_proxy,
-        debug: options.debug
-      })
-    } else if (process.env.OPENAI_API_KEY) {
+    if (process.env.OPENAI_API_KEY) {
       this.turbo = new ChatGPTAPI({
         apiKey: process.env.OPENAI_API_KEY,
-        debug: options.debug
+        debug: options.debug,
+        completionParams: {
+          model: 'gpt-4o',
+          // temperature: 0.5,
+          // top_p: 0.8
+        }
         // assistantLabel: " ",
         // userLabel: " ",
       })
     } else {
       const err =
-        "Unable to initialize the chatgpt API, both 'CHATGPT_ACCESS_TOKEN' " +
-        "and 'OPENAI_API_KEY' environment variable are not available"
+        "Unable to initialize the chatgpt API, " +
+        "'OPENAI_API_KEY' environment variable are not available"
       throw new Error(err)
     }
   }
@@ -68,22 +66,7 @@ export class Bot {
     }
 
     let response: ChatMessage | null = null
-    if (this.bot) {
-      let opts: SendMessageBrowserOptions = {}
-      if (this.history && !initial) {
-        opts.parentMessageId = this.history.id
-        opts.conversationId = this.history.conversationId
-      }
-      core.info('opts: ' + JSON.stringify(opts))
-      response = await this.bot.sendMessage(message, opts)
-      try {
-        core.info(`response: ${JSON.stringify(response)}`)
-      } catch (e: any) {
-        core.info(
-          `response: ${response}, failed to stringify: ${e}, backtrace: ${e.stack}`
-        )
-      }
-    } else if (this.turbo) {
+    if (this.turbo) {
       let opts: SendMessageOptions = {}
       if (this.history && !initial) {
         opts.parentMessageId = this.history.id

@@ -113,8 +113,8 @@ export const codeReview = async (
         filename,
         line,
         response.startsWith('ChatGPT')
-          ? `:robot: ${response}`
-          : `:robot: ChatGPT: ${response}`
+          ? `:robot: \n ${response}`
+          : `:robot: ChatGPT: \n ${response}`
       )
     } catch (e: any) {
       core.warning(`Failed to comment: ${e}, skipping.
