@@ -1,11 +1,11 @@
 name: 'chatgpt-action'
 description: 'A collection of ChatGPT assistants, e.g., code viewer, labeler, assigner, etc.'
-author: 'Tao He'
+author: 'Joshua Schmid'
 inputs:
   action:
     type: string
     required: false
-    description: 'The action to run, currently can be "review", "score"'
+    description: 'The action to run, currently can be "review"'
     default: 'review'
   debug:
     type: boolean
@@ -24,12 +24,6 @@ inputs:
     default: |
       !dist/**
       **/package-lock.json
-  chatgpt_reverse_proxy:
-    type: boolean
-    required: false
-    description: |
-      The URL of the chatgpt reverse proxy, see also https://github.com/transitive-bullshit/chatgpt-api#reverse-proxy
-    default: https://chat.duti.tech/api/conversation
   review_comment_lgtm:
     type: boolean
     required: false
@@ -60,29 +54,6 @@ inputs:
 
       ```diff
       $patch
-      ```
-  scoring_beginning:
-    type: string
-    required: false
-    description: 'The prompt for the whole pull request'
-    default: |
-      Hi ChatGPT, I have a pull request with title "$title" and the description is as follows,
-
-      > $description
-
-      I would like score the pull request, the score should be a number between 0 and 100
-      and 85 means the the pull request is basically acceptable. You just need to reply a
-      number between 0 and 100, e.g., "85", and a comment within 30 words. Next, I would
-      give you the whole diff of the pull request. Reply "OK" to confirm.
-  scoring:
-    type: string
-    required: false
-    description: 'The prompt for the whole diff for scoring'
-    default: |
-      The diff is as follows:
-
-      ```diff
-      $diff
       ```
 runs:
   using: 'node16'

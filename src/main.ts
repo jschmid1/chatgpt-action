@@ -1,22 +1,18 @@
 import {Bot} from './bot.js'
 import {Prompts, Options} from './options.js'
 import {codeReview} from './review.js'
-import {scorePullRequest} from './score.js'
 import * as core from '@actions/core'
 
 async function run(): Promise<void> {
   const action: string = core.getInput('action')
   let options: Options = new Options(
     core.getBooleanInput('debug'),
-    core.getInput('chatgpt_reverse_proxy'),
     core.getBooleanInput('review_comment_lgtm'),
-    core.getMultilineInput('path_filters')
+    core.getMultilineInput('path_filters', { required: false })
   )
   const prompts: Prompts = new Prompts(
     core.getInput('review_beginning'),
     core.getInput('review_patch'),
-    core.getInput('scoring_beginning'),
-    core.getInput('scoring')
   )
 
   // initialize chatgpt bot
@@ -32,9 +28,7 @@ async function run(): Promise<void> {
 
   try {
     core.info(`running Github action: ${action}`)
-    if (action === 'score') {
-      await scorePullRequest(bot, options, prompts)
-    } else if (action === 'review') {
+    if (action === 'review') {
       await codeReview(bot, options, prompts)
     } else {
       core.warning(`Unknown action: ${action}`)
