@@ -41,6 +41,7 @@ export class Bot {
   public chat = async (action: string, message: string, initial = false) => {
     console.time(`chatgpt ${action} ${message.length} tokens cost`)
     let response = null
+    core.info(`message: ${message}`)
     try {
       response = await this.chat_(action, message, initial)
     } catch (e: any) {

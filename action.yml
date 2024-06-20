@@ -5,7 +5,7 @@ inputs:
   action:
     type: string
     required: false
-    description: 'The action to run, currently can be "review"'
+    description: 'The action to run, currently can be only "review"'
     default: 'review'
   debug:
     type: boolean
@@ -39,9 +39,8 @@ inputs:
       > $description.
 
       Next, I will given you a series of patches, each of them consists of a filename and a diff
-      snippet, and you need to do a brief code review for every message, and tell me any bug risk
-      and improvement suggestion. If the patch is looks good and acceptable, please reply "LGTM!"
-      with a short comment with 30 words.
+      snippet, and you need to do a brief code review for every message, and tell me improvement suggestion.
+      If the patch is looks good and acceptable, please reply "LGTM!" with a short comment.
 
       You answer should be concise. Don't include the diff in your comment, and markdown format is
       preferred. Reply "OK" to confirm.
@@ -55,6 +54,10 @@ inputs:
       ```diff
       $patch
       ```
+  custom_prompt_path:
+    type: string
+    required: false
+    description: 'A custom prompt sourced from a file'
 runs:
   using: 'node16'
   main: 'dist/index.js'

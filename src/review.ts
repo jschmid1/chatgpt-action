@@ -95,9 +95,17 @@ export const codeReview = async (
     core.info(`Reviewing ${filename}:${line} with chatgpt ...`)
     inputs.filename = filename
     inputs.patch = patch
+    // if prompts.custom_prompt_path is set, use it
+    // otherwise fall back to `render_review_patch`
+    let message: string
+    if (prompts.custom_prompt_path) {
+      message = await prompts.render_custom_prompt(inputs)
+    } else {
+      message = prompts.render_review_patch(inputs)
+    }
     const response = await bot.chat(
       'review',
-      prompts.render_review_patch(inputs)
+      message
     )
     if (!response) {
       core.info('review: nothing obtained from chatgpt')

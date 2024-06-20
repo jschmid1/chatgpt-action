@@ -13,6 +13,7 @@ async function run(): Promise<void> {
   const prompts: Prompts = new Prompts(
     core.getInput('review_beginning'),
     core.getInput('review_patch'),
+    core.getInput('custom_prompt_path'),
   )
 
   // initialize chatgpt bot
