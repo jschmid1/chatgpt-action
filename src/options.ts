@@ -1,16 +1,20 @@
+import fs from 'fs/promises';
 import * as core from '@actions/core'
 import {minimatch} from 'minimatch'
 
 export class Prompts {
   public review_beginning: string
   public review_patch: string
+  public custom_prompt_path: string
 
   constructor(
     review_beginning: string = '',
     review_patch: string = '',
+    custom_prompt_path: string = '',
   ) {
     this.review_beginning = review_beginning
     this.review_patch = review_patch
+    this.custom_prompt_path = custom_prompt_path
   }
 
   public render_review_beginning(inputs: Inputs): string {
@@ -21,6 +25,16 @@ export class Prompts {
     return inputs.render(this.review_patch)
   }
 
+  public async render_custom_prompt(inputs: Inputs): Promise<string> {
+    let data;
+    try {
+      data = await fs.readFile(this.custom_prompt_path, 'utf-8');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    // load file content, then render
+    return inputs.render(data ?? '');
+  }
 }
 
 export class Inputs {
