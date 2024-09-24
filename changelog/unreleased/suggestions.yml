@@ -1,0 +1,3 @@
+message: "Added suggestions in a 'suggestion' GitHub markdown block."
+type: feature
+scope: core

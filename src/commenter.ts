@@ -23,7 +23,8 @@ export class Commenter {
     pull_number: number,
     commit_id: string,
     path: string,
-    line: number,
+    start_line: number,
+    end_line: number,
     message: string
   ) {
     await octokit.pulls.createReviewComment({
@@ -33,7 +34,9 @@ export class Commenter {
       body: message,
       commit_id: commit_id,
       path: path,
-      line: line
+      line: end_line,
+      start_line: start_line,
+      side: 'RIGHT',
     })
   }
 }
