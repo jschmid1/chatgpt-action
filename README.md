@@ -10,7 +10,7 @@ A collection of ChatGPT assistants, e.g., code viewer, labeler, assigner, etc.
     - [Configuration](#configuration)
       - [Environment variables](#environment-variables)
       - [Inputs](#inputs)
-    - [Prompt templates:](#prompt-templates)
+    - [Prompt templates](#prompt-templates)
       - [Variables available in prompt templates](#variables-available-in-prompt-templates)
   - [Developing](#developing)
   - [FAQs](#faqs)
@@ -146,7 +146,7 @@ See also: [./action.yml](./action.yml)
 - `review_comment_lgtm`: Leave comments even the patch is LGTM
 - `path_filters`: Rules to filter files to be reviewed.
 
-### Prompt templates:
+### Prompt templates
 
 See also: [./action.yml](./action.yml)
 

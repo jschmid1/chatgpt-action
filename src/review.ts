@@ -58,6 +58,7 @@ export const codeReview = async (
     context.payload.pull_request.number
   )
   const comments_and_lines = comments.map(comment => {
+    core.info(`LINE -> : ${comment.line}`)
     return {
       comment: comment,
       line: ensure_line_number(comment.line)
@@ -65,24 +66,30 @@ export const codeReview = async (
   })
 
   // find patches to review
-  let patches: Array<[string, number, string]> = []
+  let patches: Array<[string, number, number, string]> = []
   for (let file of files) {
     if (!options.check_path(file.filename)) {
       core.info(`skip for excluded path: ${file.filename}`)
       continue
     }
     for (let patch of split_patch(file.patch)) {
-      let line = patch_comment_line(patch)
+      let result = patch_comment_line(patch);
+      let start_line = result ? result.start : null;
+      let end_line = result ? result.end : null;
+      core.info(`start_line: ${start_line}, end_line: ${end_line}`)
+      if (!(start_line && end_line)) {
+        continue;
+      }
       // skip existing comments
       if (
         comments_and_lines.some(comment => {
-          return comment.comment.path === file.filename && comment.line === line
+          return comment.comment.path === file.filename && comment.line === end_line
         })
       ) {
-        core.info(`skip for existing comment: ${file.filename}, ${line}`)
+        core.info(`skip for existing comment: ${file.filename}, ${start_line}`)
         continue
       }
-      patches.push([file.filename, line, patch])
+      patches.push([file.filename, start_line, end_line, patch])
     }
   }
 
@@ -91,8 +98,8 @@ export const codeReview = async (
   }
 
   const commenter: Commenter = new Commenter()
-  for (let [filename, line, patch] of patches) {
-    core.info(`Reviewing ${filename}:${line} with chatgpt ...`)
+  for (let [filename, start_line, end_line, patch] of patches) {
+    core.info(`Reviewing ${filename}:${start_line} to ${end_line} with chatgpt ...`)
     inputs.filename = filename
     inputs.patch = patch
     // if prompts.custom_prompt_path is set, use it
@@ -119,7 +126,8 @@ export const codeReview = async (
         context.payload.pull_request.number,
         commits[commits.length - 1].sha,
         filename,
-        line,
+        start_line,
+        end_line,
         response.startsWith('ChatGPT')
           ? `:robot: \n ${response}`
           : `:robot: ChatGPT: \n ${response}`
@@ -128,7 +136,7 @@ export const codeReview = async (
       core.warning(`Failed to comment: ${e}, skipping.
         backtrace: ${e.stack}
         filename: ${filename}
-        line: ${line}
+        line: ${start_line}
         patch: ${patch}`)
     }
   }
@@ -176,15 +184,34 @@ const split_patch = (patch: string | null | undefined): Array<string> => {
   return result
 }
 
-const patch_comment_line = (patch: string): number => {
-  let pattern = /(^@@ -(\d+),(\d+) \+(?<begin>\d+),(?<diff>\d+) @@)/gm
-  let match = pattern.exec(patch)
-  if (match && match.groups) {
-    return parseInt(match.groups.begin) + parseInt(match.groups.diff) - 1
-  } else {
-    return -1
+/**
+ * Function to calculate the start and end line numbers that have been changed or added in a patch.
+ * @param patch - A string representing a diff patch.
+ * @returns An object with the start and end line numbers that have been changed or added in the patch, or null if no changes are found.
+ */
+const patch_comment_line = (patch: string): { start: number, end: number } | null => {
+  // Regular expression pattern to match the line in the patch that indicates the line numbers where changes have occurred.
+  const pattern = /(^@@ -(\d+),(\d+) \+(?<begin>\d+),(?<diff>\d+) @@)/gm;
+
+  // Execute the regular expression on the patch string.
+  const match = pattern.exec(patch);
+
+  // If a match is found and it has groups...
+  if (match?.groups && match.groups.begin && match.groups.diff) {
+    // Parse the 'begin' and 'diff' groups to integers.
+    const start = parseInt(match.groups.begin, 10);
+    const diff = parseInt(match.groups.diff, 10);
+
+    // Calculate the end line number that has been changed or added.
+    const end = start + diff - 1;
+
+    // Return the start and end line numbers.
+    return { start, end };
   }
-}
+
+  // If no match is found, return null.
+  return null
+};
 
 const ensure_line_number = (line: number | null | undefined): number => {
   return line === null || line === undefined ? 0 : line
